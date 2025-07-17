@@ -94,10 +94,23 @@ FastAPI 기반의 고성능 백엔드 서버로 AI 기반 피싱 탐지 엔진�
 
 ### 전체 시스템 설치
 
-#### 1. 저장소 클론
+> **주의**: 각 컴포넌트는 별도의 저장소로 관리됩니다. 현재 모든 저장소는 비공개(private) 상태입니다.
+
+#### 1. 각 컴포넌트 저장소 클론
 ```bash
-git clone https://github.com/your-username/deciphish.git
-cd deciphish
+# 작업 디렉토리 생성
+mkdir deciphish-platform
+cd deciphish-platform
+
+# 각 컴포넌트 저장소 클론
+git clone https://github.com/kimyt990501/deciphish-api.git
+git clone https://github.com/kimyt990501/deciphish-web.git  
+git clone https://github.com/kimyt990501/deciphish-extension.git
+
+# 또는 현재 비공개 저장소인 경우 (접근 권한 필요)
+# git clone https://github.com/kimyt990501/deciphish-api.git
+# git clone https://github.com/kimyt990501/deciphish-web.git  
+# git clone https://github.com/kimyt990501/deciphish-extension.git
 ```
 
 #### 2. API 서버 실행
@@ -143,19 +156,24 @@ npm run dev
 각 컴포넌트는 빠른 시작을 위한 스크립트를 제공합니다:
 
 ```bash
+# 작업 디렉토리로 이동 (위에서 생성한 디렉토리)
+cd deciphish-platform
+
 # API 서버 시작
 cd deciphish-api && ./docker-build.sh dev
 
-# 웹 애플리케이션 시작
-cd deciphish-web && ./run_server.sh start
-혹은
-cd deciphish-web && yarn dev
+# 새 터미널에서 웹 애플리케이션 시작
+cd deciphish-platform/deciphish-web && ./run_server.sh start
+# 또는
+cd deciphish-platform/deciphish-web && yarn dev
 
 # 모든 서비스 접속
 # 웹 애플리케이션: http://localhost:3000
 # API 문서: http://localhost:8300/docs
 # 크롬 익스텐션: 브라우저 툴바에서 아이콘 클릭
 ```
+
+> **팁**: 각 서비스는 별도의 터미널에서 실행하는 것을 권장합니다.
 
 ## 사용법
 
@@ -263,15 +281,15 @@ curl -X POST "http://localhost:8300/api/v1/generate-qr-code" \
 
 ```
 ┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
-│   deciphish-web     │    │  deciphish-extension │    │    사용자 브라우저    │
-│   (Next.js Web)     │    │  (Chrome Extension)  │    │                     │
+│   deciphish-web     │    │  deciphish-extension │   │    사용자 브라우저    │
+│   (Next.js Web)     │    │  (Chrome Extension)  │   │                     │
 │                     │    │                     │    │                     │
-│ • URL/QR 검사 UI    │    │ • 실시간 자동 검사    │    │ • 일반 웹 브라우징    │
-│ • QR 코드 생성      │    │ • 피싱 사이트 차단    │    │ • 피싱 사이트 접근    │
-│ • 사용자 대시보드    │    │ • 알림 및 경고       │    │ • 확장 프로그램 사용  │
+│ • URL/QR 검사 UI     │    │ • 실시간 자동 검사    │    │ • 일반 웹 브라우징    │
+│ • QR 코드 생성       │    │ • 피싱 사이트 차단     │    │ • 피싱 사이트 접근    │
+│ • 사용자 대시보드     │    │ • 알림 및 경고        │    │ • 확장 프로그램 사용  │
 └─────────┬───────────┘    └─────────┬───────────┘    └─────────┬───────────┘
           │                          │                          │
-          │ HTTP API 호출              │ HTTP API 호출             │ 페이지 방문
+          │ HTTP API 호출             │ HTTP API 호출            │ 페이지 방문
           │                          │                          │
           └──────────────────────────┼──────────────────────────┘
                                     │
@@ -279,13 +297,13 @@ curl -X POST "http://localhost:8300/api/v1/generate-qr-code" \
                     │        deciphish-api          │
                     │      (FastAPI Backend)        │
                     │                               │
-                    │ • AI 기반 피싱 탐지           │
-                    │ • QR 코드 처리 엔진           │
-                    │ • 사용자 인증 관리            │
-                    │ • 데이터베이스 연동           │
+                    │ • AI 기반 피싱 탐지             │
+                    │ • QR 코드 처리 엔진             │
+                    │ • 사용자 인증 관리              │
+                    │ • 데이터베이스 연동              │
                     │                               │
                     │ ┌─────────────────────────┐   │
-                    │ │    AI/ML 모델들         │   │
+                    │ │    AI/ML 모델들          │   │
                     │ │ • CLIP (파비콘 분석)     │   │
                     │ │ • Gemini (텍스트 분석)   │   │
                     │ │ • CRP Classifier        │   │
@@ -295,12 +313,48 @@ curl -X POST "http://localhost:8300/api/v1/generate-qr-code" \
                     ┌───────────────▼───────────────┐
                     │          MySQL Database       │
                     │                               │
-                    │ • 사용자 정보                 │
-                    │ • 검사 히스토리               │
-                    │ • 브랜드 데이터베이스         │
-                    │ • 캐시 데이터                 │
+                    │ • 사용자 정보                   │
+                    │ • 검사 히스토리                 │
+                    │ • 브랜드 데이터베이스            │
+                    │ • 캐시 데이터                   │
                     └───────────────────────────────┘
 ```
+
+## 저장소 구조
+
+DeciPhish는 마이크로서비스 아키텍처로 설계되어 각 컴포넌트가 독립적인 저장소로 관리됩니다:
+
+### 저장소 목록
+
+| 저장소 | 설명 | 상태 | 주요 기술 |
+|--------|------|------|----------|
+| **deciphish** | 메인 문서 저장소 | Public | Markdown |
+| **deciphish-api** | 백엔드 API 서버 | Private | FastAPI, Python, AI/ML |
+| **deciphish-web** | 웹 애플리케이션 | Private | Next.js, TypeScript |
+| **deciphish-extension** | 크롬 익스텐션 | Private | JavaScript, Chrome APIs |
+
+### 개발 환경 구성
+
+```bash
+# 권장 디렉토리 구조
+deciphish-platform/
+├── deciphish-api/          # API 서버 코드
+├── deciphish-web/          # 웹 애플리케이션 코드  
+├── deciphish-extension/    # 크롬 익스텐션 코드
+└── docs/                   # 공유 문서 (선택사항)
+```
+
+### 접근 권한
+
+현재 일부 저장소는 비공개 상태입니다.
+
+### 독립적인 개발 및 배포
+
+각 컴포넌트는 독립적으로 개발, 테스트, 배포가 가능합니다:
+
+- **API 서버**: Docker 컨테이너로 독립 배포
+- **웹 애플리케이션**: Vercel, Netlify 등으로 정적 배포
+- **크롬 익스텐션**: Chrome Web Store 배포
 
 ---
 
