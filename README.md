@@ -22,10 +22,14 @@ Next.js 기반의 웹 애플리케이션으로 사용자 친화적인 인터페�
 - 통계 대시보드 및 개인화된 서비스
 
 **기술 스택:**
-- Next.js 15 (App Router)
-- TypeScript 5
-- Tailwind CSS 4
-- React Context API
+
+| 기술 영역 | 사용 기술 | 버전 |
+|----------|-----------|------|
+| **Frontend** | Next.js | 15 (App Router) |
+| | TypeScript | 5 |
+| | Tailwind CSS | 4 |
+| **State Management** | React Context API | - |
+| **HTTP Client** | Fetch API, Axios | - |
 
 ### 2. **deciphish-api** - 백엔드 API 서버
 FastAPI 기반의 고성능 백엔드 서버로 AI 기반 피싱 탐지 엔진을 제공합니다.
@@ -38,16 +42,25 @@ FastAPI 기반의 고성능 백엔드 서버로 AI 기반 피싱 탐지 엔진�
 - 사용자 인증 및 히스토리 관리
 
 **기술 스택:**
-- FastAPI (Python 3.8+)
-- MySQL 8.0+
-- SQLAlchemy ORM
-- JWT 인증
-- Docker & Docker Compose
+
+| 기술 영역 | 사용 기술 | 버전 |
+|----------|-----------|------|
+| **Backend Framework** | FastAPI | Latest |
+| **Language** | Python | 3.8+ |
+| **Database** | MySQL | 8.0+ |
+| **ORM** | SQLAlchemy | Latest |
+| **Authentication** | JWT | - |
+| **Deployment** | Docker & Docker Compose | Latest |
+| **QR Processing** | OpenCV, pyzbar, qrcode | Latest |
+| **Image Processing** | Pillow | Latest |
 
 **AI/ML 모델:**
-- CLIP: 파비콘 이미지 분석 및 브랜드 인식
-- Gemini API: 자연어 처리 및 텍스트 분석
-- Custom CRP Classifier: 피싱 패턴 분류
+
+| 모델/서비스 | 용도 | 특징 |
+|------------|------|------|
+| **CLIP** | 파비콘 이미지 분석 및 브랜드 인식 | OpenAI 사전훈련 모델 |
+| **Gemini API** | 자연어 처리 및 텍스트 분석 | Google의 대규모 언어 모델 |
+| **Custom CRP Classifier** | 피싱 패턴 분류 | XLM-RoBERTa 기반 커스텀 모델 |
 
 ### 3. **deciphish-extension** - 크롬 익스텐션
 실시간 피싱 사이트 탐지 및 차단을 위한 Chrome 브라우저 익스텐션입니다.
@@ -60,10 +73,14 @@ FastAPI 기반의 고성능 백엔드 서버로 AI 기반 피싱 탐지 엔진�
 - 클라우드 동기화 및 멀티 디바이스 지원
 
 **기술 스택:**
-- Manifest V3
-- Vanilla JavaScript (ES6+)
-- Chrome Extensions API
-- CSS3 (Flexbox/Grid)
+
+| 기술 영역 | 사용 기술 | 버전 |
+|----------|-----------|------|
+| **Extension API** | Manifest V3 | Latest |
+| **Language** | Vanilla JavaScript | ES6+ |
+| **Browser APIs** | Chrome Extensions API | Latest |
+| **Styling** | CSS3 | Flexbox/Grid |
+| **Storage** | Chrome Storage API | - |
 
 ## 시작하기
 
