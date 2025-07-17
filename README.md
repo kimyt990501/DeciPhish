@@ -2,7 +2,6 @@
   <img src="./images/deciphish_logo.png" alt="DeciPhish Logo" width="200"/>
   
   # DeciPhish
-  실시간 피싱 탐지 플랫폼
 </div>
 
 AI 기반 피싱 사이트 탐지 시스템으로, 웹 애플리케이션, API 서버, 크롬 익스텐션을 통해 다양한 환경에서 피싱 사이트를 탐지하고 차단할 수 있는 종합적인 보안 솔루션입니다.
