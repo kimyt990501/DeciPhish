@@ -101,7 +101,7 @@ FastAPI 기반의 고성능 백엔드 서버로 AI 기반 피싱 탐지 엔진�
 mkdir deciphish-platform
 cd deciphish-platform
 
-# 각 컴포넌트 저장소 클론 (현재 비공개 상태라 불가능)
+# 각 컴포넌트 저장소 클론
 git clone https://github.com/kimyt990501/deciphish-api.git
 git clone https://github.com/kimyt990501/deciphish-web.git
 git clone https://github.com/kimyt990501/deciphish-extension.git
@@ -338,9 +338,14 @@ deciphish-platform/
 └── docs/                   # 공유 문서 (선택사항)
 ```
 
-### 접근 권한
+#### 저장소 링크
 
-현재 일부 저장소는 비공개 상태입니다.
+| 컴포넌트 | 저장소 URL | 접근 권한 | 설명 |
+|----------|------------|-----------|------|
+| **API 서버** | [deciphish-api](https://github.com/kimyt990501/deciphish-api) | Public | 백엔드 API 서버 및 AI 모델 |
+| **웹 애플리케이션** | [deciphish-web](https://github.com/kimyt990501/deciphish-web) | Public | Next.js 기반 웹 인터페이스 |
+| **크롬 익스텐션** | [deciphish-extension](https://github.com/kimyt990501/deciphish-extension) | Public | 브라우저 확장 프로그램 |
+| **메인 문서** | [deciphish](https://github.com/kimyt990501/deciphish) | Public | 프로젝트 문서 및 가이드 |
 
 ### 독립적인 개발 및 배포
 
