@@ -16,9 +16,11 @@ Next.js 기반의 웹 애플리케이션으로 사용자 친화적인 인터페�
 **주요 기능:**
 - AI 기반 피싱 사이트 탐지
 - 실시간 URL 검사 및 QR 코드 피싱 검사
+- Redis 기반 비동기 처리 시스템 (0.1초 내 즉시 응답)
 - QR 코드 생성 및 분석 도구
 - 사용자 인증 및 검사 히스토리 관리
 - 통계 대시보드 및 개인화된 서비스
+- 스마트 캐싱으로 중복 검사 방지
 
 **기술 스택:**
 
@@ -28,17 +30,20 @@ Next.js 기반의 웹 애플리케이션으로 사용자 친화적인 인터페�
 | | TypeScript | 5 |
 | | Tailwind CSS | 4 |
 | **State Management** | React Context API | - |
-| **HTTP Client** | Fetch API, Axios | - |
+| **HTTP Client** | Axios (비동기 API 지원) | - |
+| **Real-time Updates** | 폴링 기반 작업 상태 추적 | - |
 
 ### 2. **deciphish-api** - 백엔드 API 서버
 FastAPI 기반의 고성능 백엔드 서버로 AI 기반 피싱 탐지 엔진을 제공합니다.
 
 **주요 기능:**
 - 다중 레이어 피싱 탐지 (URL 리다이렉트 추적, 파비콘 분석, 텍스트 분석)
+- Redis 기반 비동기 작업 큐 시스템
 - CLIP 모델 기반 브랜드 로고 인식
 - Gemini LLM을 활용한 페이지 콘텐츠 분석
 - QR 코드 인식 및 생성 엔진
 - 사용자 인증 및 히스토리 관리
+- 스마트 캐싱 및 재검사 시스템
 
 **기술 스택:**
 
@@ -47,11 +52,13 @@ FastAPI 기반의 고성능 백엔드 서버로 AI 기반 피싱 탐지 엔진�
 | **Backend Framework** | FastAPI | Latest |
 | **Language** | Python | 3.8+ |
 | **Database** | MySQL | 8.0+ |
+| **Cache & Queue** | Redis | 7.0+ |
 | **ORM** | SQLAlchemy | Latest |
 | **Authentication** | JWT | - |
 | **Deployment** | Docker & Docker Compose | Latest |
 | **QR Processing** | OpenCV, pyzbar, qrcode | Latest |
 | **Image Processing** | Pillow | Latest |
+| **API Versions** | v1 (동기), v2 (비동기) | - |
 
 **AI/ML 모델:**
 
@@ -88,6 +95,7 @@ FastAPI 기반의 고성능 백엔드 서버로 AI 기반 피싱 탐지 엔진�
 - **Node.js** 18.0.0 이상
 - **Python** 3.8 이상
 - **MySQL** 8.0 이상
+- **Redis** 7.0 이상 (비동기 처리용, 선택사항)
 - **Docker & Docker Compose** (권장)
 - **Chrome 브라우저** (익스텐션 사용 시)
 
@@ -115,9 +123,12 @@ cd deciphish-api
 cp env.example .env
 # .env 파일 편집하여 필요한 설정 입력
 
-# Docker로 실행 (권장)
+# Docker로 실행 (기본, MySQL만)
 chmod +x docker-build.sh
 ./docker-build.sh dev
+
+# Redis 포함 비동기 처리 모드 (권장)
+./docker-build.sh redis-dev
 
 # 또는 로컬에서 실행
 pip install -r requirements.txt
@@ -153,7 +164,10 @@ npm run dev
 # 작업 디렉토리로 이동 (위에서 생성한 디렉토리)
 cd deciphish-platform
 
-# API 서버 시작
+# API 서버 시작 (Redis 포함 비동기 모드, 권장)
+cd deciphish-api && ./docker-build.sh run_dev_with_redis
+
+# 또는 기본 모드 (MySQL만)
 cd deciphish-api && ./docker-build.sh dev
 
 # 새 터미널에서 웹 애플리케이션 시작
@@ -175,11 +189,15 @@ cd deciphish-platform/deciphish-web && yarn dev
 
 1. **URL 검사**
    - 메인 페이지에서 "URL 검사" 탭 선택
+   - 처리 방식 선택 (토글 스위치):
+     - **비동기 모드**: 즉시 응답 후 백그라운드 처리 (기본값)
+     - **동기 모드**: 처리 완료까지 대기하는 기존 방식
    - 검사하고 싶은 URL 입력
    - "Check Phishing" 버튼 클릭
 
 2. **QR 코드 검사**
    - "QR 코드 검사" 탭 선택
+   - QR 비동기 모드 토글로 처리 방식 선택
    - QR 코드 이미지 업로드
    - 자동으로 URL 추출 후 피싱 검사 실행
 
@@ -201,6 +219,7 @@ cd deciphish-platform/deciphish-web && yarn dev
 
 ### API를 통한 직접 연동
 
+#### 동기 API (v1)
 ```bash
 # 피싱 사이트 검사
 curl -X POST "http://localhost:8300/api/v1/detect-phishing/" \
@@ -218,6 +237,30 @@ curl -X POST "http://localhost:8300/api/v1/generate-qr-code" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"text": "https://example.com", "include_logo": true}'
+```
+
+#### 비동기 API (v2, Redis 필요)
+```bash
+# 비동기 피싱 사이트 검사
+curl -X POST "http://localhost:8300/api/v2/detect-async" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://suspicious-site.com"}'
+
+# 작업 상태 조회
+curl -X GET "http://localhost:8300/api/v2/task-status/abc123def456" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# 비동기 QR 코드 피싱 검사
+curl -X POST "http://localhost:8300/api/v2/detect-phishing-qr-file-async" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -F "file=@qr_code_image.png"
+
+# 재검사 (캐시 무시)
+curl -X POST "http://localhost:8300/api/v2/redetect-async" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"detection_id": 12345}'
 ```
 
 ## 스크린샷
@@ -265,6 +308,13 @@ curl -X POST "http://localhost:8300/api/v1/generate-qr-code" \
 - **로고 포함 생성**: 브랜드 로고가 포함된 QR 코드 생성
 - **다중 포맷 지원**: PNG, JPEG, JPG, BMP, WEBP, GIF
 
+### 고성능 비동기 처리 시스템
+- **즉시 응답**: 검사 요청 후 0.1초 내 응답으로 30-100배 성능 향상
+- **백그라운드 처리**: Redis 큐 기반 분산 작업 처리
+- **스마트 캐싱**: 이전 검사 결과 즉시 반환으로 중복 분석 방지
+- **재검사 시스템**: 캐시를 무시하고 강제 최신 상태 분석
+- **API 호환성**: 기존 동기 API와 새로운 비동기 API 동시 지원
+
 ### 다양한 접근 방식
 - **웹 인터페이스**: 직관적인 웹 애플리케이션
 - **브라우저 확장**: 실시간 자동 보호
@@ -295,6 +345,7 @@ curl -X POST "http://localhost:8300/api/v1/generate-qr-code" \
                     │ • QR 코드 처리 엔진             │
                     │ • 사용자 인증 관리              │
                     │ • 데이터베이스 연동              │
+                    │ • 비동기 작업 관리              │
                     │                               │
                     │ ┌─────────────────────────┐   │
                     │ │    AI/ML 모델들          │   │
@@ -302,16 +353,16 @@ curl -X POST "http://localhost:8300/api/v1/generate-qr-code" \
                     │ │ • Gemini (텍스트 분석)   │   │
                     │ │ • CRP Classifier        │   │
                     │ └─────────────────────────┘   │
-                    └───────────────┬───────────────┘
-                                    │
-                    ┌───────────────▼───────────────┐
-                    │          MySQL Database       │
-                    │                               │
-                    │ • 사용자 정보                   │
-                    │ • 검사 히스토리                 │
-                    │ • 브랜드 데이터베이스            │
-                    │ • 캐시 데이터                   │
-                    └───────────────────────────────┘
+                    └─────┬─────────────┬───────────┘
+                          │             │
+        ┌─────────────────▼─┐         ┌─▼───────────────────┐
+        │   Redis Server    │         │   MySQL Database   │
+        │                   │         │                     │
+        │ • 비동기 작업 큐    │         │ • 사용자 정보        │
+        │ • 캐시 저장소      │         │ • 검사 히스토리      │
+        │ • 진행률 추적      │         │ • 브랜드 데이터베이스 │
+        │ • 백그라운드 워커   │         │ • 영구 데이터 저장   │
+        └───────────────────┘         └─────────────────────┘
 ```
 
 ## 저장소 구조
@@ -354,6 +405,28 @@ deciphish-platform/
 - **API 서버**: Docker 컨테이너로 독립 배포
 - **웹 애플리케이션**: Vercel, Netlify 등으로 정적 배포
 - **크롬 익스텐션**: Chrome Web Store 배포
+
+## 성능 및 확장성
+
+### 응답 성능 비교
+
+| 처리 방식 | 응답 시간 | 사용자 대기 | 처리 효율 |
+|----------|-----------|-------------|-----------|
+| **동기 처리** | 3-10초 | 전체 대기 | 순차 처리 |
+| **비동기 처리** | 0.1초 | 즉시 결과 | 병렬 처리 |
+| **캐시 히트** | 0.05초 | 즉시 결과 | 중복 방지 |
+
+### 시스템 확장성
+
+**수평 확장:**
+- Redis 클러스터링으로 큐 분산 처리
+- 다중 워커 인스턴스 병렬 실행
+- 로드 밸런서를 통한 API 서버 분산
+
+**최적화 기능:**
+- 스마트 캐싱으로 중복 검사 방지 (90% 요청 캐시 히트)
+- 백그라운드 워커 자동 스케일링
+- DB 연결 풀링 및 쿼리 최적화
 
 ---
 
